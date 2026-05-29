@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<!-- saved from url=(0063)file:///Users/bridgethazlett/Downloads/seating_chart_embed.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resolve AI Offsite — Seating Chart</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #4a5020;
+    --surface: #3d4318;
+    --border: #6b7530;
+    --accent: #c8d840;
+    --muted: #8a9535;
+    --card-bg: #424c1c;
+    --seat-empty: #3a4115;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--accent);
+    padding: 20px 16px 32px;
+  }
+
+  .sparkles { text-align: center; margin-bottom: 4px; opacity: 0.7; }
+
+  header {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  header p { font-size: 0.8rem; color: var(--muted); }
+
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .stat { text-align: center; }
+  .stat-val { font-size: 1.5rem; font-family: 'Playfair Display', serif; color: var(--accent); line-height: 1; }
+  .stat-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
+
+  /* search */
+  .search-wrap {
+    max-width: 320px;
+    margin: 0 auto 20px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    color: var(--accent);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    outline: none;
+  }
+
+  .search-wrap input::placeholder { color: var(--muted); }
+  .search-wrap input:focus { border-color: var(--accent); }
+
+  .room-label {
+    text-align: center;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  /* floor plan grid */
+  .floor-plan {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    max-width: 900px;
+    margin: 0 auto 32px;
+  }
+
+  .floor-col { display: flex; flex-direction: column; gap: 10px; }
+  .floor-col.mid { padding-top: 40px; }
+
+  /* table cards */
+  .table-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 12px 12px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+
+  .table-card.highlight { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(200,216,64,0.2); }
+
+  .table-number {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg);
+    padding: 2px 10px;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  /* circular visual */
+  .table-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0 8px;
+    position: relative;
+    height: 76px;
+  }
+
+  .table-circle {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1.5px solid var(--accent);
+    position: absolute;
+    z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; font-weight: 600; color: var(--accent);
+  }
+
+  .seat-dots { position: absolute; width: 76px; height: 76px; }
+
+  .seat-dot {
+    position: absolute;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--seat-empty);
+    border: 1px solid var(--border);
+  }
+
+  .seat-dot.filled { background: var(--accent); }
+
+  .seat-count {
+    text-align: center;
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .seat-count span { color: var(--accent); font-weight: 500; }
+
+  /* guest list */
+  .guest-list { font-size: 0.68rem; line-height: 1.6; }
+
+  .guest-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background 0.1s;
+  }
+
+  .guest-item.dim { opacity: 0.25; }
+  .guest-item.match { background: rgba(200,216,64,0.12); }
+
+  .guest-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+
+  .guest-name { color: var(--accent); }
+
+  /* index tab */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 18px;
+    font-size: 0.75rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .tab.active, .tab:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+  /* alphabetical index */
+  .alpha-index {
+    max-width: 900px;
+    margin: 0 auto;
+    display: none;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px 16px;
+  }
+
+  .alpha-index.visible { display: grid; }
+
+  .alpha-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    transition: background 0.1s;
+  }
+
+  .alpha-item.match { background: rgba(200,216,64,0.12); }
+  .alpha-item.dim { opacity: 0.2; }
+
+  .alpha-name { color: var(--accent); }
+  .alpha-table { color: var(--muted); font-size: 0.68rem; font-weight: 500; }
+
+  /* resolve logo */
+  .resolve-logo {
+    position: fixed;
+    bottom: 14px; right: 14px;
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: var(--bg);
+  }
+
+  @media (max-width: 700px) {
+    .floor-plan { grid-template-columns: repeat(3, 1fr); }
+    .floor-col.mid { padding-top: 0; }
+    .alpha-index { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .floor-plan { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="sparkles">
+  <svg width="52" height="32" viewBox="0 0 52 32" fill="none">
+    <path d="M36 3L38 12L47 14L38 16L36 25L34 16L25 14L34 12Z" fill="none" stroke="#c8d840" stroke-width="1.4"></path>
+    <path d="M18 8L19.5 15L27 16.5L19.5 18L18 25L16.5 18L9 16.5L16.5 15Z" fill="none" stroke="#c8d840" stroke-width="1.1"></path>
+  </svg>
+</div>
+
+<header>
+  <h1>Resolve AI Offsite · Seating Chart</h1>
+  <p>Main Building · Palm Room · June 1, 2026 · 6:30 PM</p>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val">127</div><div class="stat-label">Attending</div></div>
+  <div class="stat"><div class="stat-val">13</div><div class="stat-label">Tables</div></div>
+  <div class="stat"><div class="stat-val">130</div><div class="stat-label">Seats</div></div>
+</div>
+
+<div class="search-wrap">
+  <input type="text" id="searchInput" placeholder="🔍  Find your name..." oninput="handleSearch(this.value)">
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showView(&#39;chart&#39;, this)">Seating Chart</button>
+  <button class="tab" onclick="showView(&#39;index&#39;, this)">Alphabetical Index</button>
+</div>
+
+<div class="room-label" id="roomLabel">Palm Side · Main Building Convention Room</div>
+
+<div class="floor-plan" id="floorPlan"><div class="floor-col"><div class="table-card" id="card-0"><div class="table-number">Table 1</div><div class="table-visual"><div class="table-circle">10</div><div class="seat-dots"><div class="seat-dot filled" style="left: 33px; top: 0px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 6.30244px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 33px; top: 66px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 6.30244px;"></div></div></div><div class="seat-count"><span>10</span> / 10</div><div class="guest-list"><div class="guest-item" data-name="ioli daniil"><div class="guest-dot"></div><span class="guest-name">Ioli Daniil</span></div><div class="guest-item" data-name="adrian santos"><div class="guest-dot"></div><span class="guest-name">Adrian Santos</span></div><div class="guest-item" data-name="kshitij alwadhi"><div class="guest-dot"></div><span class="guest-name">Kshitij Alwadhi</span></div><div class="guest-item" data-name="tapish jain"><div class="guest-dot"></div><span class="guest-name">Tapish Jain</span></div><div class="guest-item" data-name="amanda nichols"><div class="guest-dot"></div><span class="guest-name">Amanda Nichols</span></div><div class="guest-item" data-name="daniel ma"><div class="guest-dot"></div><span class="guest-name">Daniel Ma</span></div><div class="guest-item" data-name="ruban rengaraju"><div class="guest-dot"></div><span class="guest-name">Ruban Rengaraju</span></div><div class="guest-item" data-name="jonathan canales"><div class="guest-dot"></div><span class="guest-name">Jonathan Canales</span></div><div class="guest-item" data-name="pawan shankar"><div class="guest-dot"></div><span class="guest-name">Pawan Shankar</span></div><div class="guest-item" data-name="filippo fabrini"><div class="guest-dot"></div><span class="guest-name">Filippo Fabrini</span></div></div></div><div class="table-card" id="card-2"><div class="table-number">Table 3</div><div class="table-visual"><div class="table-circle">10</div><div class="seat-dots"><div class="seat-dot filled" style="left: 33px; top: 0px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 6.30244px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 33px; top: 66px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 6.30244px;"></div></div></div><div class="seat-count"><span>10</span> / 10</div><div class="guest-list"><div class="guest-item" data-name="boris kagan"><div class="guest-dot"></div><span class="guest-name">Boris Kagan</span></div><div class="guest-item" data-name="juan campos"><div class="guest-dot"></div><span class="guest-name">Juan Campos</span></div><div class="guest-item" data-name="dave lawson"><div class="guest-dot"></div><span class="guest-name">Dave Lawson</span></div><div class="guest-item" data-name="harnit singh"><div class="guest-dot"></div><span class="guest-name">Harnit Singh</span></div><div class="guest-item" data-name="victor li"><div class="guest-dot"></div><span class="guest-name">Victor Li</span></div><div class="guest-item" data-name="spiros xanthos"><div class="guest-dot"></div><span class="guest-name">Spiros Xanthos</span></div><div class="guest-item" data-name="melissa palmer"><div class="guest-dot"></div><span class="guest-name">Melissa Palmer</span></div><div class="guest-item" data-name="stuart watson"><div class="guest-dot"></div><span class="guest-name">Stuart Watson</span></div><div class="guest-item" data-name="amanda berry"><div class="guest-dot"></div><span class="guest-name">Amanda Berry</span></div><div class="guest-item" data-name="janelle pon"><div class="guest-dot"></div><span class="guest-name">Janelle Pon</span></div></div></div><div class="table-card" id="card-4"><div class="table-number">Table 5</div><div class="table-visual"><div class="table-circle">10</div><div class="seat-dots"><div class="seat-dot filled" style="left: 33px; top: 0px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 6.30244px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 33px; top: 66px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 6.30244px;"></div></div></div><div class="seat-count"><span>10</span> / 10</div><div class="guest-list"><div class="guest-item" data-name="rebecca marshburn"><div class="guest-dot"></div><span class="guest-name">Rebecca Marshburn</span></div><div class="guest-item" data-name="michael wilde"><div class="guest-dot"></div><span class="guest-name">Michael Wilde</span></div><div class="guest-item" data-name="joshua grose"><div class="guest-dot"></div><span class="guest-name">Joshua Grose</span></div><div class="guest-item" data-name="anoushka saxena"><div class="guest-dot"></div><span class="guest-name">Anoushka Saxena</span></div><div class="guest-item" data-name="vamsi bedapudi"><div class="guest-dot"></div><span class="guest-name">Vamsi Bedapudi</span></div><div class="guest-item" data-name="brett botens"><div class="guest-dot"></div><span class="guest-name">Brett Botens</span></div><div class="guest-item" data-name="vishwa sheth"><div class="guest-dot"></div><span class="guest-name">Vishwa Sheth</span></div><div class="guest-item" data-name="michelle wu"><div class="guest-dot"></div><span class="guest-name">Michelle Wu</span></div><div class="guest-item" data-name="remington gack"><div class="guest-dot"></div><span class="guest-name">Remington Gack</span></div><div class="guest-item" data-name="hardik surana"><div class="guest-dot"></div><span class="guest-name">Hardik Surana</span></div></div></div></div><div class="floor-col mid"><div class="table-card" id="card-1"><div class="table-number">Table 2</div><div class="table-visual"><div class="table-circle">9</div><div class="seat-dots"><div class="seat-dot filled" style="left: 33px; top: 0px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 6.30244px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 33px; top: 66px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 22.8024px;"></div><div class="seat-dot" style="left: 13.6031px; top: 6.30244px;"></div></div></div><div class="seat-count"><span>9</span> / 10</div><div class="guest-list"><div class="guest-item" data-name="henry maier"><div class="guest-dot"></div><span class="guest-name">Henry Maier</span></div><div class="guest-item" data-name="julia unterzaucher"><div class="guest-dot"></div><span class="guest-name">Julia Unterzaucher</span></div><div class="guest-item" data-name="mehul goyal"><div class="guest-dot"></div><span class="guest-name">Mehul Goyal</span></div><div class="guest-item" data-name="lukun zhang"><div class="guest-dot"></div><span class="guest-name">Lukun Zhang</span></div><div class="guest-item" data-name="dhruv mahajan"><div class="guest-dot"></div><span class="guest-name">Dhruv Mahajan</span></div><div class="guest-item" data-name="emilios nicolaou"><div class="guest-dot"></div><span class="guest-name">Emilios Nicolaou</span></div><div class="guest-item" data-name="justin grosch"><div class="guest-dot"></div><span class="guest-name">Justin Grosch</span></div><div class="guest-item" data-name="anand doshi"><div class="guest-dot"></div><span class="guest-name">Anand Doshi</span></div><div class="guest-item" data-name="nishant abhangi"><div class="guest-dot"></div><span class="guest-name">Nishant Abhangi</span></div></div></div><div class="table-card" id="card-3"><div class="table-number">Table 4</div><div class="table-visual"><div class="table-circle">10</div><div class="seat-dots"><div class="seat-dot filled" style="left: 33px; top: 0px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 6.30244px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 33px; top: 66px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 6.30244px;"></div></div></div><div class="seat-count"><span>10</span> / 10</div><div class="guest-list"><div class="guest-item" data-name="rohith reddy gangam"><div class="guest-dot"></div><span class="guest-name">Rohith Reddy Gangam</span></div><div class="guest-item" data-name="vasanth balakrishnan"><div class="guest-dot"></div><span class="guest-name">Vasanth Balakrishnan</span></div><div class="guest-item" data-name="harry shin"><div class="guest-dot"></div><span class="guest-name">Harry Shin</span></div><div class="guest-item" data-name="sean bell"><div class="guest-dot"></div><span class="guest-name">Sean Bell</span></div><div class="guest-item" data-name="manveer sahota"><div class="guest-dot"></div><span class="guest-name">Manveer Sahota</span></div><div class="guest-item" data-name="daniel smith"><div class="guest-dot"></div><span class="guest-name">Daniel Smith</span></div><div class="guest-item" data-name="chanukya vardhan gujjula"><div class="guest-dot"></div><span class="guest-name">Chanukya Vardhan Gujjula</span></div><div class="guest-item" data-name="noah schlager"><div class="guest-dot"></div><span class="guest-name">Noah Schlager</span></div><div class="guest-item" data-name="caroline guo"><div class="guest-dot"></div><span class="guest-name">Caroline Guo</span></div><div class="guest-item" data-name="amin karbas"><div class="guest-dot"></div><span class="guest-name">Amin Karbas</span></div></div></div><div class="table-card" id="card-5"><div class="table-number">Table 6</div><div class="table-visual"><div class="table-circle">10</div><div class="seat-dots"><div class="seat-dot filled" style="left: 33px; top: 0px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 6.30244px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 33px; top: 66px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 6.30244px;"></div></div></div><div class="seat-count"><span>10</span> / 10</div><div class="guest-list"><div class="guest-item" data-name="daniel pham"><div class="guest-dot"></div><span class="guest-name">Daniel Pham</span></div><div class="guest-item" data-name="gary enriquez"><div class="guest-dot"></div><span class="guest-name">Gary Enriquez</span></div><div class="guest-item" data-name="varun krovvidi"><div class="guest-dot"></div><span class="guest-name">Varun Krovvidi</span></div><div class="guest-item" data-name="rachel kolavo"><div class="guest-dot"></div><span class="guest-name">Rachel Kolavo</span></div><div class="guest-item" data-name="carla gonzales"><div class="guest-dot"></div><span class="guest-name">Carla Gonzales</span></div><div class="guest-item" data-name="artem ovsyannikov"><div class="guest-dot"></div><span class="guest-name">Artem Ovsyannikov</span></div><div class="guest-item" data-name="vivek parekh"><div class="guest-dot"></div><span class="guest-name">Vivek Parekh</span></div><div class="guest-item" data-name="george vlastarakis"><div class="guest-dot"></div><span class="guest-name">George Vlastarakis</span></div><div class="guest-item" data-name="abhishek sharma"><div class="guest-dot"></div><span class="guest-name">Abhishek Sharma</span></div><div class="guest-item" data-name="liz corsi"><div class="guest-dot"></div><span class="guest-name">Liz Corsi</span></div></div></div></div><div class="floor-col"><div class="table-card" id="card-6"><div class="table-number">Table 7</div><div class="table-visual"><div class="table-circle">10</div><div class="seat-dots"><div class="seat-dot filled" style="left: 33px; top: 0px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 6.30244px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 33px; top: 66px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 6.30244px;"></div></div></div><div class="seat-count"><span>10</span> / 10</div><div class="guest-list"><div class="guest-item" data-name="lauren phillips"><div class="guest-dot"></div><span class="guest-name">Lauren Phillips</span></div><div class="guest-item" data-name="yash reddy"><div class="guest-dot"></div><span class="guest-name">Yash Reddy</span></div><div class="guest-item" data-name="alvin zhu"><div class="guest-dot"></div><span class="guest-name">Alvin Zhu</span></div><div class="guest-item" data-name="sam becker"><div class="guest-dot"></div><span class="guest-name">Sam Becker</span></div><div class="guest-item" data-name="mayank agarwal"><div class="guest-dot"></div><span class="guest-name">Mayank Agarwal</span></div><div class="guest-item" data-name="vasi karkantzos"><div class="guest-dot"></div><span class="guest-name">Vasi Karkantzos</span></div><div class="guest-item" data-name="bharat khandelwal"><div class="guest-dot"></div><span class="guest-name">Bharat Khandelwal</span></div><div class="guest-item" data-name="brooke daniels"><div class="guest-dot"></div><span class="guest-name">Brooke Daniels</span></div><div class="guest-item" data-name="anne-maria salmela"><div class="guest-dot"></div><span class="guest-name">Anne-Maria Salmela</span></div><div class="guest-item" data-name="kaushal patil"><div class="guest-dot"></div><span class="guest-name">Kaushal Patil</span></div></div></div><div class="table-card" id="card-8"><div class="table-number">Table 9</div><div class="table-visual"><div class="table-circle">10</div><div class="seat-dots"><div class="seat-dot filled" style="left: 33px; top: 0px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 6.30244px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 33px; top: 66px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 6.30244px;"></div></div></div><div class="seat-count"><span>10</span> / 10</div><div class="guest-list"><div class="guest-item" data-name="edward li"><div class="guest-dot"></div><span class="guest-name">Edward Li</span></div><div class="guest-item" data-name="sean geary"><div class="guest-dot"></div><span class="guest-name">Sean Geary</span></div><div class="guest-item" data-name="sydney harmon"><div class="guest-dot"></div><span class="guest-name">Sydney Harmon</span></div><div class="guest-item" data-name="vaibhav laroia"><div class="guest-dot"></div><span class="guest-name">Vaibhav Laroia</span></div><div class="guest-item" data-name="pierre tessier"><div class="guest-dot"></div><span class="guest-name">Pierre Tessier</span></div><div class="guest-item" data-name="tom poggiani"><div class="guest-dot"></div><span class="guest-name">Tom Poggiani</span></div><div class="guest-item" data-name="nick jonas"><div class="guest-dot"></div><span class="guest-name">Nick Jonas</span></div><div class="guest-item" data-name="jason kabaker"><div class="guest-dot"></div><span class="guest-name">Jason Kabaker</span></div><div class="guest-item" data-name="justin smith"><div class="guest-dot"></div><span class="guest-name">Justin Smith</span></div><div class="guest-item" data-name="gangadhar chalapaka"><div class="guest-dot"></div><span class="guest-name">Gangadhar Chalapaka</span></div></div></div><div class="table-card" id="card-10"><div class="table-number">Table 11</div><div class="table-visual"><div class="table-circle">10</div><div class="seat-dots"><div class="seat-dot filled" style="left: 33px; top: 0px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 6.30244px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 33px; top: 66px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 6.30244px;"></div></div></div><div class="seat-count"><span>10</span> / 10</div><div class="guest-list"><div class="guest-item" data-name="karl goeltner"><div class="guest-dot"></div><span class="guest-name">Karl Goeltner</span></div><div class="guest-item" data-name="betsy button"><div class="guest-dot"></div><span class="guest-name">Betsy Button</span></div><div class="guest-item" data-name="steven karis"><div class="guest-dot"></div><span class="guest-name">Steven Karis</span></div><div class="guest-item" data-name="ciaran fitzgerald"><div class="guest-dot"></div><span class="guest-name">Ciaran Fitzgerald</span></div><div class="guest-item" data-name="michael alverson"><div class="guest-dot"></div><span class="guest-name">Michael Alverson</span></div><div class="guest-item" data-name="jordan hongo"><div class="guest-dot"></div><span class="guest-name">Jordan Hongo</span></div><div class="guest-item" data-name="rajesh kamma"><div class="guest-dot"></div><span class="guest-name">Rajesh Kamma</span></div><div class="guest-item" data-name="prodan statev"><div class="guest-dot"></div><span class="guest-name">Prodan Statev</span></div><div class="guest-item" data-name="xuchao jia"><div class="guest-dot"></div><span class="guest-name">Xuchao Jia</span></div><div class="guest-item" data-name="colin glen"><div class="guest-dot"></div><span class="guest-name">Colin Glen</span></div></div></div></div><div class="floor-col"><div class="table-card" id="card-7"><div class="table-number">Table 8</div><div class="table-visual"><div class="table-circle">10</div><div class="seat-dots"><div class="seat-dot filled" style="left: 33px; top: 0px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 6.30244px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 33px; top: 66px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 6.30244px;"></div></div></div><div class="seat-count"><span>10</span> / 10</div><div class="guest-list"><div class="guest-item" data-name="manoj middepogu"><div class="guest-dot"></div><span class="guest-name">Manoj Middepogu</span></div><div class="guest-item" data-name="raymond fung"><div class="guest-dot"></div><span class="guest-name">Raymond Fung</span></div><div class="guest-item" data-name="milind ganjoo"><div class="guest-dot"></div><span class="guest-name">Milind Ganjoo</span></div><div class="guest-item" data-name="iain methe"><div class="guest-dot"></div><span class="guest-name">Iain Methe</span></div><div class="guest-item" data-name="shangyu hsu"><div class="guest-dot"></div><span class="guest-name">Shangyu Hsu</span></div><div class="guest-item" data-name="bridget hazlett"><div class="guest-dot"></div><span class="guest-name">Bridget Hazlett</span></div><div class="guest-item" data-name="jason zucchetto"><div class="guest-dot"></div><span class="guest-name">Jason Zucchetto</span></div><div class="guest-item" data-name="jitesh punjabi"><div class="guest-dot"></div><span class="guest-name">Jitesh Punjabi</span></div><div class="guest-item" data-name="animesh das"><div class="guest-dot"></div><span class="guest-name">Animesh Das</span></div><div class="guest-item" data-name="chris dyer"><div class="guest-dot"></div><span class="guest-name">Chris Dyer</span></div></div></div><div class="table-card" id="card-9"><div class="table-number">Table 10</div><div class="table-visual"><div class="table-circle">10</div><div class="seat-dots"><div class="seat-dot filled" style="left: 33px; top: 0px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 6.30244px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 33px; top: 66px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 6.30244px;"></div></div></div><div class="seat-count"><span>10</span> / 10</div><div class="guest-list"><div class="guest-item" data-name="pradeep sai uppula"><div class="guest-dot"></div><span class="guest-name">Pradeep Sai Uppula</span></div><div class="guest-item" data-name="graham pace"><div class="guest-dot"></div><span class="guest-name">Graham Pace</span></div><div class="guest-item" data-name="swarit joshipura"><div class="guest-dot"></div><span class="guest-name">Swarit Joshipura</span></div><div class="guest-item" data-name="adam ackad"><div class="guest-dot"></div><span class="guest-name">Adam Ackad</span></div><div class="guest-item" data-name="elizabeth nguyen"><div class="guest-dot"></div><span class="guest-name">Elizabeth Nguyen</span></div><div class="guest-item" data-name="deep desai"><div class="guest-dot"></div><span class="guest-name">Deep Desai</span></div><div class="guest-item" data-name="stephen staffieri"><div class="guest-dot"></div><span class="guest-name">Stephen Staffieri</span></div><div class="guest-item" data-name="murali balusu"><div class="guest-dot"></div><span class="guest-name">Murali Balusu</span></div><div class="guest-item" data-name="amita seshadri"><div class="guest-dot"></div><span class="guest-name">Amita Seshadri</span></div><div class="guest-item" data-name="tom prickett"><div class="guest-dot"></div><span class="guest-name">Tom Prickett</span></div></div></div></div><div class="floor-col"><div class="table-card" id="card-11"><div class="table-number">Table 12</div><div class="table-visual"><div class="table-circle">10</div><div class="seat-dots"><div class="seat-dot filled" style="left: 33px; top: 0px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 6.30244px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 33px; top: 66px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 6.30244px;"></div></div></div><div class="seat-count"><span>10</span> / 10</div><div class="guest-list"><div class="guest-item" data-name="harsha polavaram"><div class="guest-dot"></div><span class="guest-name">Harsha Polavaram</span></div><div class="guest-item" data-name="apoorv verma"><div class="guest-dot"></div><span class="guest-name">Apoorv Verma</span></div><div class="guest-item" data-name="rahman mohammad"><div class="guest-dot"></div><span class="guest-name">Rahman Mohammad</span></div><div class="guest-item" data-name="claire yin"><div class="guest-dot"></div><span class="guest-name">Claire Yin</span></div><div class="guest-item" data-name="simrit dhanjal"><div class="guest-dot"></div><span class="guest-name">Simrit Dhanjal</span></div><div class="guest-item" data-name="annalise krueger"><div class="guest-dot"></div><span class="guest-name">Annalise Krueger</span></div><div class="guest-item" data-name="bill sun"><div class="guest-dot"></div><span class="guest-name">Bill Sun</span></div><div class="guest-item" data-name="michael preibisch"><div class="guest-dot"></div><span class="guest-name">Michael Preibisch</span></div><div class="guest-item" data-name="seerut sidhu"><div class="guest-dot"></div><span class="guest-name">Seerut Sidhu</span></div><div class="guest-item" data-name="davis govrik"><div class="guest-dot"></div><span class="guest-name">Davis Govrik</span></div></div></div><div class="table-card" id="card-12"><div class="table-number">Table 13</div><div class="table-visual"><div class="table-circle">8</div><div class="seat-dots"><div class="seat-dot filled" style="left: 33px; top: 0px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 6.30244px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 22.8024px;"></div><div class="seat-dot filled" style="left: 64.3849px; top: 43.1976px;"></div><div class="seat-dot filled" style="left: 52.3969px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 33px; top: 66px;"></div><div class="seat-dot filled" style="left: 13.6031px; top: 59.6976px;"></div><div class="seat-dot filled" style="left: 1.61513px; top: 43.1976px;"></div><div class="seat-dot" style="left: 1.61513px; top: 22.8024px;"></div><div class="seat-dot" style="left: 13.6031px; top: 6.30244px;"></div></div></div><div class="seat-count"><span>8</span> / 10</div><div class="guest-list"><div class="guest-item" data-name="charlie ji"><div class="guest-dot"></div><span class="guest-name">Charlie Ji</span></div><div class="guest-item" data-name="anthony buljan"><div class="guest-dot"></div><span class="guest-name">Anthony Buljan</span></div><div class="guest-item" data-name="leo loughrey"><div class="guest-dot"></div><span class="guest-name">Leo Loughrey</span></div><div class="guest-item" data-name="kyle wedoff"><div class="guest-dot"></div><span class="guest-name">Kyle Wedoff</span></div><div class="guest-item" data-name="tony palmer"><div class="guest-dot"></div><span class="guest-name">Tony Palmer</span></div><div class="guest-item" data-name="bharath gowda"><div class="guest-dot"></div><span class="guest-name">Bharath Gowda</span></div><div class="guest-item" data-name="elijah huang"><div class="guest-dot"></div><span class="guest-name">Elijah Huang</span></div><div class="guest-item" data-name="sophie tung"><div class="guest-dot"></div><span class="guest-name">Sophie Tung</span></div></div></div></div></div>
+<div class="alpha-index" id="alphaIndex"><div class="alpha-item" data-name="nishant abhangi"><span class="alpha-name">Nishant Abhangi</span><span class="alpha-table">T2</span></div><div class="alpha-item" data-name="adam ackad"><span class="alpha-name">Adam Ackad</span><span class="alpha-table">T10</span></div><div class="alpha-item" data-name="mayank agarwal"><span class="alpha-name">Mayank Agarwal</span><span class="alpha-table">T7</span></div><div class="alpha-item" data-name="michael alverson"><span class="alpha-name">Michael Alverson</span><span class="alpha-table">T11</span></div><div class="alpha-item" data-name="kshitij alwadhi"><span class="alpha-name">Kshitij Alwadhi</span><span class="alpha-table">T1</span></div><div class="alpha-item" data-name="vasanth balakrishnan"><span class="alpha-name">Vasanth Balakrishnan</span><span class="alpha-table">T4</span></div><div class="alpha-item" data-name="murali balusu"><span class="alpha-name">Murali Balusu</span><span class="alpha-table">T10</span></div><div class="alpha-item" data-name="sam becker"><span class="alpha-name">Sam Becker</span><span class="alpha-table">T7</span></div><div class="alpha-item" data-name="vamsi bedapudi"><span class="alpha-name">Vamsi Bedapudi</span><span class="alpha-table">T5</span></div><div class="alpha-item" data-name="sean bell"><span class="alpha-name">Sean Bell</span><span class="alpha-table">T4</span></div><div class="alpha-item" data-name="amanda berry"><span class="alpha-name">Amanda Berry</span><span class="alpha-table">T3</span></div><div class="alpha-item" data-name="brett botens"><span class="alpha-name">Brett Botens</span><span class="alpha-table">T5</span></div><div class="alpha-item" data-name="anthony buljan"><span class="alpha-name">Anthony Buljan</span><span class="alpha-table">T13</span></div><div class="alpha-item" data-name="betsy button"><span class="alpha-name">Betsy Button</span><span class="alpha-table">T11</span></div><div class="alpha-item" data-name="juan campos"><span class="alpha-name">Juan Campos</span><span class="alpha-table">T3</span></div><div class="alpha-item" data-name="jonathan canales"><span class="alpha-name">Jonathan Canales</span><span class="alpha-table">T1</span></div><div class="alpha-item" data-name="gangadhar chalapaka"><span class="alpha-name">Gangadhar Chalapaka</span><span class="alpha-table">T9</span></div><div class="alpha-item" data-name="liz corsi"><span class="alpha-name">Liz Corsi</span><span class="alpha-table">T6</span></div><div class="alpha-item" data-name="brooke daniels"><span class="alpha-name">Brooke Daniels</span><span class="alpha-table">T7</span></div><div class="alpha-item" data-name="ioli daniil"><span class="alpha-name">Ioli Daniil</span><span class="alpha-table">T1</span></div><div class="alpha-item" data-name="animesh das"><span class="alpha-name">Animesh Das</span><span class="alpha-table">T8</span></div><div class="alpha-item" data-name="deep desai"><span class="alpha-name">Deep Desai</span><span class="alpha-table">T10</span></div><div class="alpha-item" data-name="simrit dhanjal"><span class="alpha-name">Simrit Dhanjal</span><span class="alpha-table">T12</span></div><div class="alpha-item" data-name="anand doshi"><span class="alpha-name">Anand Doshi</span><span class="alpha-table">T2</span></div><div class="alpha-item" data-name="chris dyer"><span class="alpha-name">Chris Dyer</span><span class="alpha-table">T8</span></div><div class="alpha-item" data-name="gary enriquez"><span class="alpha-name">Gary Enriquez</span><span class="alpha-table">T6</span></div><div class="alpha-item" data-name="filippo fabrini"><span class="alpha-name">Filippo Fabrini</span><span class="alpha-table">T1</span></div><div class="alpha-item" data-name="ciaran fitzgerald"><span class="alpha-name">Ciaran Fitzgerald</span><span class="alpha-table">T11</span></div><div class="alpha-item" data-name="raymond fung"><span class="alpha-name">Raymond Fung</span><span class="alpha-table">T8</span></div><div class="alpha-item" data-name="remington gack"><span class="alpha-name">Remington Gack</span><span class="alpha-table">T5</span></div><div class="alpha-item" data-name="rohith reddy gangam"><span class="alpha-name">Rohith Reddy Gangam</span><span class="alpha-table">T4</span></div><div class="alpha-item" data-name="milind ganjoo"><span class="alpha-name">Milind Ganjoo</span><span class="alpha-table">T8</span></div><div class="alpha-item" data-name="sean geary"><span class="alpha-name">Sean Geary</span><span class="alpha-table">T9</span></div><div class="alpha-item" data-name="colin glen"><span class="alpha-name">Colin Glen</span><span class="alpha-table">T11</span></div><div class="alpha-item" data-name="karl goeltner"><span class="alpha-name">Karl Goeltner</span><span class="alpha-table">T11</span></div><div class="alpha-item" data-name="carla gonzales"><span class="alpha-name">Carla Gonzales</span><span class="alpha-table">T6</span></div><div class="alpha-item" data-name="davis govrik"><span class="alpha-name">Davis Govrik</span><span class="alpha-table">T12</span></div><div class="alpha-item" data-name="bharath gowda"><span class="alpha-name">Bharath Gowda</span><span class="alpha-table">T13</span></div><div class="alpha-item" data-name="mehul goyal"><span class="alpha-name">Mehul Goyal</span><span class="alpha-table">T2</span></div><div class="alpha-item" data-name="justin grosch"><span class="alpha-name">Justin Grosch</span><span class="alpha-table">T2</span></div><div class="alpha-item" data-name="joshua grose"><span class="alpha-name">Joshua Grose</span><span class="alpha-table">T5</span></div><div class="alpha-item" data-name="chanukya vardhan gujjula"><span class="alpha-name">Chanukya Vardhan Gujjula</span><span class="alpha-table">T4</span></div><div class="alpha-item" data-name="caroline guo"><span class="alpha-name">Caroline Guo</span><span class="alpha-table">T4</span></div><div class="alpha-item" data-name="sydney harmon"><span class="alpha-name">Sydney Harmon</span><span class="alpha-table">T9</span></div><div class="alpha-item" data-name="bridget hazlett"><span class="alpha-name">Bridget Hazlett</span><span class="alpha-table">T8</span></div><div class="alpha-item" data-name="jordan hongo"><span class="alpha-name">Jordan Hongo</span><span class="alpha-table">T11</span></div><div class="alpha-item" data-name="shangyu hsu"><span class="alpha-name">Shangyu Hsu</span><span class="alpha-table">T8</span></div><div class="alpha-item" data-name="elijah huang"><span class="alpha-name">Elijah Huang</span><span class="alpha-table">T13</span></div><div class="alpha-item" data-name="tapish jain"><span class="alpha-name">Tapish Jain</span><span class="alpha-table">T1</span></div><div class="alpha-item" data-name="charlie ji"><span class="alpha-name">Charlie Ji</span><span class="alpha-table">T13</span></div><div class="alpha-item" data-name="xuchao jia"><span class="alpha-name">Xuchao Jia</span><span class="alpha-table">T11</span></div><div class="alpha-item" data-name="nick jonas"><span class="alpha-name">Nick Jonas</span><span class="alpha-table">T9</span></div><div class="alpha-item" data-name="swarit joshipura"><span class="alpha-name">Swarit Joshipura</span><span class="alpha-table">T10</span></div><div class="alpha-item" data-name="jason kabaker"><span class="alpha-name">Jason Kabaker</span><span class="alpha-table">T9</span></div><div class="alpha-item" data-name="boris kagan"><span class="alpha-name">Boris Kagan</span><span class="alpha-table">T3</span></div><div class="alpha-item" data-name="rajesh kamma"><span class="alpha-name">Rajesh Kamma</span><span class="alpha-table">T11</span></div><div class="alpha-item" data-name="amin karbas"><span class="alpha-name">Amin Karbas</span><span class="alpha-table">T4</span></div><div class="alpha-item" data-name="steven karis"><span class="alpha-name">Steven Karis</span><span class="alpha-table">T11</span></div><div class="alpha-item" data-name="vasi karkantzos"><span class="alpha-name">Vasi Karkantzos</span><span class="alpha-table">T7</span></div><div class="alpha-item" data-name="bharat khandelwal"><span class="alpha-name">Bharat Khandelwal</span><span class="alpha-table">T7</span></div><div class="alpha-item" data-name="rachel kolavo"><span class="alpha-name">Rachel Kolavo</span><span class="alpha-table">T6</span></div><div class="alpha-item" data-name="varun krovvidi"><span class="alpha-name">Varun Krovvidi</span><span class="alpha-table">T6</span></div><div class="alpha-item" data-name="annalise krueger"><span class="alpha-name">Annalise Krueger</span><span class="alpha-table">T12</span></div><div class="alpha-item" data-name="vaibhav laroia"><span class="alpha-name">Vaibhav Laroia</span><span class="alpha-table">T9</span></div><div class="alpha-item" data-name="dave lawson"><span class="alpha-name">Dave Lawson</span><span class="alpha-table">T3</span></div><div class="alpha-item" data-name="victor li"><span class="alpha-name">Victor Li</span><span class="alpha-table">T3</span></div><div class="alpha-item" data-name="edward li"><span class="alpha-name">Edward Li</span><span class="alpha-table">T9</span></div><div class="alpha-item" data-name="leo loughrey"><span class="alpha-name">Leo Loughrey</span><span class="alpha-table">T13</span></div><div class="alpha-item" data-name="daniel ma"><span class="alpha-name">Daniel Ma</span><span class="alpha-table">T1</span></div><div class="alpha-item" data-name="dhruv mahajan"><span class="alpha-name">Dhruv Mahajan</span><span class="alpha-table">T2</span></div><div class="alpha-item" data-name="henry maier"><span class="alpha-name">Henry Maier</span><span class="alpha-table">T2</span></div><div class="alpha-item" data-name="rebecca marshburn"><span class="alpha-name">Rebecca Marshburn</span><span class="alpha-table">T5</span></div><div class="alpha-item" data-name="iain methe"><span class="alpha-name">Iain Methe</span><span class="alpha-table">T8</span></div><div class="alpha-item" data-name="manoj middepogu"><span class="alpha-name">Manoj Middepogu</span><span class="alpha-table">T8</span></div><div class="alpha-item" data-name="rahman mohammad"><span class="alpha-name">Rahman Mohammad</span><span class="alpha-table">T12</span></div><div class="alpha-item" data-name="elizabeth nguyen"><span class="alpha-name">Elizabeth Nguyen</span><span class="alpha-table">T10</span></div><div class="alpha-item" data-name="amanda nichols"><span class="alpha-name">Amanda Nichols</span><span class="alpha-table">T1</span></div><div class="alpha-item" data-name="emilios nicolaou"><span class="alpha-name">Emilios Nicolaou</span><span class="alpha-table">T2</span></div><div class="alpha-item" data-name="artem ovsyannikov"><span class="alpha-name">Artem Ovsyannikov</span><span class="alpha-table">T6</span></div><div class="alpha-item" data-name="graham pace"><span class="alpha-name">Graham Pace</span><span class="alpha-table">T10</span></div><div class="alpha-item" data-name="melissa palmer"><span class="alpha-name">Melissa Palmer</span><span class="alpha-table">T3</span></div><div class="alpha-item" data-name="tony palmer"><span class="alpha-name">Tony Palmer</span><span class="alpha-table">T13</span></div><div class="alpha-item" data-name="vivek parekh"><span class="alpha-name">Vivek Parekh</span><span class="alpha-table">T6</span></div><div class="alpha-item" data-name="kaushal patil"><span class="alpha-name">Kaushal Patil</span><span class="alpha-table">T7</span></div><div class="alpha-item" data-name="daniel pham"><span class="alpha-name">Daniel Pham</span><span class="alpha-table">T6</span></div><div class="alpha-item" data-name="lauren phillips"><span class="alpha-name">Lauren Phillips</span><span class="alpha-table">T7</span></div><div class="alpha-item" data-name="tom poggiani"><span class="alpha-name">Tom Poggiani</span><span class="alpha-table">T9</span></div><div class="alpha-item" data-name="harsha polavaram"><span class="alpha-name">Harsha Polavaram</span><span class="alpha-table">T12</span></div><div class="alpha-item" data-name="janelle pon"><span class="alpha-name">Janelle Pon</span><span class="alpha-table">T3</span></div><div class="alpha-item" data-name="michael preibisch"><span class="alpha-name">Michael Preibisch</span><span class="alpha-table">T12</span></div><div class="alpha-item" data-name="tom prickett"><span class="alpha-name">Tom Prickett</span><span class="alpha-table">T10</span></div><div class="alpha-item" data-name="jitesh punjabi"><span class="alpha-name">Jitesh Punjabi</span><span class="alpha-table">T8</span></div><div class="alpha-item" data-name="yash reddy"><span class="alpha-name">Yash Reddy</span><span class="alpha-table">T7</span></div><div class="alpha-item" data-name="ruban rengaraju"><span class="alpha-name">Ruban Rengaraju</span><span class="alpha-table">T1</span></div><div class="alpha-item" data-name="manveer sahota"><span class="alpha-name">Manveer Sahota</span><span class="alpha-table">T4</span></div><div class="alpha-item" data-name="anne-maria salmela"><span class="alpha-name">Anne-Maria Salmela</span><span class="alpha-table">T7</span></div><div class="alpha-item" data-name="adrian santos"><span class="alpha-name">Adrian Santos</span><span class="alpha-table">T1</span></div><div class="alpha-item" data-name="anoushka saxena"><span class="alpha-name">Anoushka Saxena</span><span class="alpha-table">T5</span></div><div class="alpha-item" data-name="noah schlager"><span class="alpha-name">Noah Schlager</span><span class="alpha-table">T4</span></div><div class="alpha-item" data-name="amita seshadri"><span class="alpha-name">Amita Seshadri</span><span class="alpha-table">T10</span></div><div class="alpha-item" data-name="pawan shankar"><span class="alpha-name">Pawan Shankar</span><span class="alpha-table">T1</span></div><div class="alpha-item" data-name="abhishek sharma"><span class="alpha-name">Abhishek Sharma</span><span class="alpha-table">T6</span></div><div class="alpha-item" data-name="vishwa sheth"><span class="alpha-name">Vishwa Sheth</span><span class="alpha-table">T5</span></div><div class="alpha-item" data-name="harry shin"><span class="alpha-name">Harry Shin</span><span class="alpha-table">T4</span></div><div class="alpha-item" data-name="seerut sidhu"><span class="alpha-name">Seerut Sidhu</span><span class="alpha-table">T12</span></div><div class="alpha-item" data-name="harnit singh"><span class="alpha-name">Harnit Singh</span><span class="alpha-table">T3</span></div><div class="alpha-item" data-name="daniel smith"><span class="alpha-name">Daniel Smith</span><span class="alpha-table">T4</span></div><div class="alpha-item" data-name="justin smith"><span class="alpha-name">Justin Smith</span><span class="alpha-table">T9</span></div><div class="alpha-item" data-name="stephen staffieri"><span class="alpha-name">Stephen Staffieri</span><span class="alpha-table">T10</span></div><div class="alpha-item" data-name="prodan statev"><span class="alpha-name">Prodan Statev</span><span class="alpha-table">T11</span></div><div class="alpha-item" data-name="bill sun"><span class="alpha-name">Bill Sun</span><span class="alpha-table">T12</span></div><div class="alpha-item" data-name="hardik surana"><span class="alpha-name">Hardik Surana</span><span class="alpha-table">T5</span></div><div class="alpha-item" data-name="pierre tessier"><span class="alpha-name">Pierre Tessier</span><span class="alpha-table">T9</span></div><div class="alpha-item" data-name="sophie tung"><span class="alpha-name">Sophie Tung</span><span class="alpha-table">T13</span></div><div class="alpha-item" data-name="julia unterzaucher"><span class="alpha-name">Julia Unterzaucher</span><span class="alpha-table">T2</span></div><div class="alpha-item" data-name="pradeep sai uppula"><span class="alpha-name">Pradeep Sai Uppula</span><span class="alpha-table">T10</span></div><div class="alpha-item" data-name="apoorv verma"><span class="alpha-name">Apoorv Verma</span><span class="alpha-table">T12</span></div><div class="alpha-item" data-name="george vlastarakis"><span class="alpha-name">George Vlastarakis</span><span class="alpha-table">T6</span></div><div class="alpha-item" data-name="stuart watson"><span class="alpha-name">Stuart Watson</span><span class="alpha-table">T3</span></div><div class="alpha-item" data-name="kyle wedoff"><span class="alpha-name">Kyle Wedoff</span><span class="alpha-table">T13</span></div><div class="alpha-item" data-name="michael wilde"><span class="alpha-name">Michael Wilde</span><span class="alpha-table">T5</span></div><div class="alpha-item" data-name="michelle wu"><span class="alpha-name">Michelle Wu</span><span class="alpha-table">T5</span></div><div class="alpha-item" data-name="spiros xanthos"><span class="alpha-name">Spiros Xanthos</span><span class="alpha-table">T3</span></div><div class="alpha-item" data-name="claire yin"><span class="alpha-name">Claire Yin</span><span class="alpha-table">T12</span></div><div class="alpha-item" data-name="lukun zhang"><span class="alpha-name">Lukun Zhang</span><span class="alpha-table">T2</span></div><div class="alpha-item" data-name="alvin zhu"><span class="alpha-name">Alvin Zhu</span><span class="alpha-table">T7</span></div><div class="alpha-item" data-name="jason zucchetto"><span class="alpha-name">Jason Zucchetto</span><span class="alpha-table">T8</span></div></div>
+
+<div class="resolve-logo">R·AI</div>
+
+<script>
+const TABLES = [
+  ["Ioli Daniil","Adrian Santos","Kshitij Alwadhi","Tapish Jain","Amanda Nichols","Daniel Ma","Ruban Rengaraju","Jonathan Canales","Pawan Shankar","Filippo Fabrini"],
+  ["Henry Maier","Julia Unterzaucher","Mehul Goyal","Lukun Zhang","Dhruv Mahajan","Emilios Nicolaou","Justin Grosch","Anand Doshi","Nishant Abhangi"],
+  ["Boris Kagan","Juan Campos","Dave Lawson","Harnit Singh","Victor Li","Spiros Xanthos","Melissa Palmer","Stuart Watson","Amanda Berry","Janelle Pon"],
+  ["Rohith Reddy Gangam","Vasanth Balakrishnan","Harry Shin","Sean Bell","Manveer Sahota","Daniel Smith","Chanukya Vardhan Gujjula","Noah Schlager","Caroline Guo","Amin Karbas"],
+  ["Rebecca Marshburn","Michael Wilde","Joshua Grose","Anoushka Saxena","Vamsi Bedapudi","Brett Botens","Vishwa Sheth","Michelle Wu","Remington Gack","Hardik Surana"],
+  ["Daniel Pham","Gary Enriquez","Varun Krovvidi","Rachel Kolavo","Carla Gonzales","Artem Ovsyannikov","Vivek Parekh","George Vlastarakis","Abhishek Sharma","Liz Corsi"],
+  ["Lauren Phillips","Yash Reddy","Alvin Zhu","Sam Becker","Mayank Agarwal","Vasi Karkantzos","Bharat Khandelwal","Brooke Daniels","Anne-Maria Salmela","Kaushal Patil"],
+  ["Manoj Middepogu","Raymond Fung","Milind Ganjoo","Iain Methe","Shangyu Hsu","Bridget Hazlett","Jason Zucchetto","Jitesh Punjabi","Animesh Das","Chris Dyer"],
+  ["Edward Li","Sean Geary","Sydney Harmon","Vaibhav Laroia","Pierre Tessier","Tom Poggiani","Nick Jonas","Jason Kabaker","Justin Smith","Gangadhar Chalapaka"],
+  ["Pradeep Sai Uppula","Graham Pace","Swarit Joshipura","Adam Ackad","Elizabeth Nguyen","Deep Desai","Stephen Staffieri","Murali Balusu","Amita Seshadri","Tom Prickett"],
+  ["Karl Goeltner","Betsy Button","Steven Karis","Ciaran Fitzgerald","Michael Alverson","Jordan Hongo","Rajesh Kamma","Prodan Statev","Xuchao Jia","Colin Glen"],
+  ["Harsha Polavaram","Apoorv Verma","Rahman Mohammad","Claire Yin","Simrit Dhanjal","Annalise Krueger","Bill Sun","Michael Preibisch","Seerut Sidhu","Davis Govrik"],
+  ["Charlie Ji","Anthony Buljan","Leo Loughrey","Kyle Wedoff","Tony Palmer","Bharath Gowda","Elijah Huang","Sophie Tung"]
+];
+
+function seatPos(n, r, i) {
+  const a = (i/n)*2*Math.PI - Math.PI/2;
+  return { x: 38 + r*Math.cos(a) - 5, y: 38 + r*Math.sin(a) - 5 };
+}
+
+function buildChart() {
+  const fp = document.getElementById('floorPlan');
+  // 5 cols: 3,3,3,2,2 — middle col offset
+  const cols = [[0,2,4],[1,3,5],[6,8,10],[7,9],[11,12]];
+  cols.forEach((indices, ci) => {
+    const col = document.createElement('div');
+    col.className = 'floor-col' + (ci === 1 ? ' mid' : '');
+    indices.forEach(ti => {
+      if (ti >= TABLES.length) return;
+      col.appendChild(buildCard(ti));
+    });
+    fp.appendChild(col);
+  });
+}
+
+function buildCard(ti) {
+  const guests = TABLES[ti];
+  const card = document.createElement('div');
+  card.className = 'table-card';
+  card.id = `card-${ti}`;
+
+  const badge = document.createElement('div');
+  badge.className = 'table-number';
+  badge.textContent = `Table ${ti+1}`;
+  card.appendChild(badge);
+
+  // visual
+  const vis = document.createElement('div');
+  vis.className = 'table-visual';
+  const circle = document.createElement('div');
+  circle.className = 'table-circle';
+  circle.textContent = guests.length;
+  vis.appendChild(circle);
+  const dots = document.createElement('div');
+  dots.className = 'seat-dots';
+  for (let i = 0; i < 10; i++) {
+    const p = seatPos(10, 33, i);
+    const d = document.createElement('div');
+    d.className = 'seat-dot' + (i < guests.length ? ' filled' : '');
+    d.style.left = p.x + 'px'; d.style.top = p.y + 'px';
+    dots.appendChild(d);
+  }
+  vis.appendChild(dots);
+  card.appendChild(vis);
+
+  const count = document.createElement('div');
+  count.className = 'seat-count';
+  count.innerHTML = `<span>${guests.length}</span> / 10`;
+  card.appendChild(count);
+
+  const list = document.createElement('div');
+  list.className = 'guest-list';
+  guests.forEach(name => {
+    const item = document.createElement('div');
+    item.className = 'guest-item';
+    item.dataset.name = name.toLowerCase();
+    item.innerHTML = `<div class="guest-dot"></div><span class="guest-name">${name}</span>`;
+    list.appendChild(item);
+  });
+  card.appendChild(list);
+  return card;
+}
+
+function buildIndex() {
+  const idx = document.getElementById('alphaIndex');
+  const all = TABLES.flatMap((t, ti) => t.map(name => ({name, ti})));
+  all.sort((a,b) => a.name.split(' ').pop().localeCompare(b.name.split(' ').pop()));
+  all.forEach(({name, ti}) => {
+    const item = document.createElement('div');
+    item.className = 'alpha-item';
+    item.dataset.name = name.toLowerCase();
+    item.innerHTML = `<span class="alpha-name">${name}</span><span class="alpha-table">T${ti+1}</span>`;
+    idx.appendChild(item);
+  });
+}
+
+function handleSearch(val) {
+  const q = val.trim().toLowerCase();
+  // chart view
+  document.querySelectorAll('.guest-item').forEach(el => {
+    if (!q) { el.classList.remove('dim','match'); return; }
+    if (el.dataset.name.includes(q)) { el.classList.add('match'); el.classList.remove('dim'); }
+    else { el.classList.add('dim'); el.classList.remove('match'); }
+  });
+  // highlight cards that have a match
+  document.querySelectorAll('.table-card').forEach(card => {
+    const hasMatch = card.querySelector('.guest-item.match');
+    card.classList.toggle('highlight', !!hasMatch && !!q);
+  });
+  // index view
+  document.querySelectorAll('.alpha-item').forEach(el => {
+    if (!q) { el.classList.remove('dim','match'); return; }
+    if (el.dataset.name.includes(q)) { el.classList.add('match'); el.classList.remove('dim'); }
+    else { el.classList.add('dim'); el.classList.remove('match'); }
+  });
+}
+
+function showView(view, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const fp = document.getElementById('floorPlan');
+  const ai = document.getElementById('alphaIndex');
+  const rl = document.getElementById('roomLabel');
+  if (view === 'chart') {
+    fp.style.display = ''; ai.classList.remove('visible'); rl.style.display = '';
+  } else {
+    fp.style.display = 'none'; ai.classList.add('visible'); rl.style.display = 'none';
+  }
+}
+
+buildChart();
+buildIndex();
+</script>
+
+
+</body></html>
