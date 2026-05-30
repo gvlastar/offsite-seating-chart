@@ -37,9 +37,10 @@
 
   header h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.8rem;
+    font-size: clamp(1.25rem, 5vw, 1.8rem);
     color: var(--accent);
     margin-bottom: 4px;
+    overflow-wrap: break-word;
   }
 
   header p { font-size: 0.8rem; color: var(--muted); }
@@ -95,8 +96,8 @@
     margin: 0 auto 32px;
   }
 
-  .floor-col { display: flex; flex-direction: column; gap: 10px; }
-  .floor-col.mid { padding-top: 40px; }
+  .floor-col { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+  .floor-col.short { justify-content: center; }
 
   /* table cards */
   .table-card {
@@ -105,10 +106,20 @@
     border-radius: 12px;
     padding: 14px 12px 12px;
     position: relative;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    animation: cardIn 0.45s ease both;
+  }
+
+  .table-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--muted);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.22);
   }
 
   .table-card.highlight { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(200,216,64,0.2); }
+
+  @keyframes cardIn { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .table-card { animation: none; } }
 
   .table-number {
     position: absolute;
@@ -256,13 +267,14 @@
     color: var(--bg);
   }
 
-  @media (max-width: 700px) {
-    .floor-plan { grid-template-columns: repeat(3, 1fr); }
-    .floor-col.mid { padding-top: 0; }
+  @media (max-width: 760px) {
+    /* single ordered column, T1 → T13 */
+    .floor-plan { display: flex; flex-direction: column; gap: 12px; max-width: 440px; }
+    .floor-col { display: contents; }
     .alpha-index { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 480px) {
-    .floor-plan { grid-template-columns: repeat(2, 1fr); }
+    header h1 { line-height: 1.25; }
+    .room-label { letter-spacing: 1.5px; }
+    .stats { gap: 20px; }
   }
 </style>
 </head>
@@ -326,11 +338,11 @@ function seatPos(n, r, i) {
 
 function buildChart() {
   const fp = document.getElementById('floorPlan');
-  // 5 cols: 3,3,3,2,2 — middle col offset
-  const cols = [[0,2,4],[1,3,5],[6,8,10],[7,9],[11,12]];
+  // 5 cols, symmetric 3-2-3-2-3; the two short cols nestle between the tall ones
+  const cols = [[0,1,2],[3,4],[5,6,7],[8,9],[10,11,12]];
   cols.forEach((indices, ci) => {
     const col = document.createElement('div');
-    col.className = 'floor-col' + (ci === 1 ? ' mid' : '');
+    col.className = 'floor-col' + (ci % 2 === 1 ? ' short' : '');
     indices.forEach(ti => {
       if (ti >= TABLES.length) return;
       col.appendChild(buildCard(ti));
@@ -344,6 +356,7 @@ function buildCard(ti) {
   const card = document.createElement('div');
   card.className = 'table-card';
   card.id = `card-${ti}`;
+  card.style.animationDelay = (ti * 0.04) + 's';
 
   const badge = document.createElement('div');
   badge.className = 'table-number';
